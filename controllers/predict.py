@@ -170,7 +170,6 @@ def predict(data):
         top_features_output.append({
             "feature": base_name,          # Keep original feature key if needed
             "label": label,                # Friendly name for frontend display
-            "contribution": round(float(contribution), 4),
             "explanation": explanation
         })
     # 5. Prediction summary
