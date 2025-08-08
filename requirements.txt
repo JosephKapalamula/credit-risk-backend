@@ -1,6 +1,6 @@
 
-llvmlite==0.43.1
-numba==0.60.0
+llvmlite==0.44.0
+numba==0.61.2
 shap==0.48.0
 fastapi==0.116.1
 uvicorn==0.35.0
