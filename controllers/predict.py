@@ -7,6 +7,7 @@ from controllers import biasmitigate
 import joblib
 import shap
 
+
 # Load models
 xgboost = joblib.load('models/XGBoost.pkl')
 preprocessor = joblib.load('models/preprocessor.pkl')
@@ -91,6 +92,28 @@ explanation_templates = {
     }
 }
 
+friendly_labels = {
+    'maritalstatus_Married': "Marital Status: Married",
+    'maritalstatus_Single': "Marital Status: Single",
+    'region_North': "Region: North",
+    'region_South': "Region: South",
+    'employmentstatus_Self-employed': "Employment Status: Self-employed",
+    'employmentstatus_Unemployed': "Employment Status: Unemployed",
+    'level_Diploma': "Education Level: Diploma",
+    'repaymentplan_Voluntary': "Voluntary Repayment Plan",
+    'collectionefforts_No Collectioneffort': "No Collection Efforts",
+    'collectionefforts_Notices': "Collection Notices",
+    'collectionefforts_Reminders': "Collection Reminders",
+    'borrowerage': "Borrower Age",
+    'householdsize': "Household Size",
+    'loanamount': "Loan Amount",
+    'repaidamount': "Amount Repaid",
+    'remainingamount': "Remaining Loan Amount",
+    'originalloanintrate': "Original Loan Interest Rate",
+    'currentloanintrate': "Current Loan Interest Rate",
+    'interestratechange': "Interest Rate Change"
+}
+
 def predict(data):
     # 1. Data preprocessing pipeline
     df1 = pd.DataFrame([data.dict()])
@@ -133,17 +156,23 @@ def predict(data):
 
     for feature, contribution in top_features:
         base_name = clean_feature_name(feature)
-        label = base_name
+
+        # Get friendly label, fallback to base_name if not found
+        label = friendly_labels.get(base_name, base_name)
+
+        # Get explanation template
         template = explanation_templates.get(base_name, {})
-        explanation = template.get(prediction_label,
-                                   f"{label} contributed to the predicted {prediction_label.replace('_', ' ')}.")
+        explanation = template.get(
+            prediction_label,
+            f"{label} contributed to the predicted {prediction_label.replace('_', ' ')}."
+        )
+
         top_features_output.append({
-            "feature": base_name,
-            "label": label,
+            "feature": base_name,          # Keep original feature key if needed
+            "label": label,                # Friendly name for frontend display
             "contribution": round(float(contribution), 4),
             "explanation": explanation
         })
-
     # 5. Prediction summary
     if predicted_class == 1:
         title = "Low Risk"
